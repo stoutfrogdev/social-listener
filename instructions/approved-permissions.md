@@ -130,6 +130,13 @@ The following actions ALWAYS require explicit human permission and must NEVER be
 
 *Permissions granted during sessions will be added here. Each entry should include the date and context.*
 
+### File Write Permissions (Added: 2026-01-31)
+
+- Write/create files in `platform/` directory - Platform application code (Context: Initial scaffolding of social listener app)
+- Write/create files in `instructions/plans/` directory - Project implementation plans (Context: Plan documentation)
+- Edit `CLAUDE.md` - Update project instructions (Context: Added plans directory documentation)
+- Edit `.github/workflows/*.yml` - Update CI/CD workflows (Context: Updated for platform/ directory structure)
+
 <!--
 Format for adding new permissions:
 - `command` - Description (Added: YYYY-MM-DD, Context: why it was needed)
