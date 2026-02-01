@@ -14,8 +14,13 @@ NC='\033[0m' # No Color
 echo "Running pre-commit checks..."
 echo ""
 
-# Get the current branch
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
+# Get the current branch (handle initial commit case)
+if git rev-parse --verify HEAD >/dev/null 2>&1; then
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+else
+    # Initial commit - get branch from symbolic ref
+    BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "develop")
+fi
 
 # =============================================================================
 # 1. BRANCH PROTECTION
