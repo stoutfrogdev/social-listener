@@ -1,0 +1,82 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isBrandMember(brandId) {
+      let brand = get(/databases/$(database)/documents/brands/$(brandId));
+      return isAuthenticated() && (
+        brand.data.ownerId == request.auth.uid ||
+        request.auth.uid in brand.data.members[*].userId
+      );
+    }
+
+    function isBrandOwner(brandId) {
+      let brand = get(/databases/$(database)/documents/brands/$(brandId));
+      return isAuthenticated() && brand.data.ownerId == request.auth.uid;
+    }
+
+    function isBrandAdmin(brandId) {
+      let brand = get(/databases/$(database)/documents/brands/$(brandId));
+      return isAuthenticated() && (
+        brand.data.ownerId == request.auth.uid ||
+        brand.data.members.hasAny([{'userId': request.auth.uid, 'role': 'admin'}])
+      );
+    }
+
+    // Users collection
+    match /users/{userId} {
+      // Users can only read/write their own document
+      allow read: if isOwner(userId);
+      allow create: if isAuthenticated();
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
+
+    // Brands collection
+    match /brands/{brandId} {
+      // Members can read their brands
+      allow read: if isBrandMember(brandId);
+
+      // Any authenticated user can create a brand
+      allow create: if isAuthenticated() &&
+        request.resource.data.ownerId == request.auth.uid;
+
+      // Only owner or admin can update
+      allow update: if isBrandAdmin(brandId);
+
+      // Only owner can delete
+      allow delete: if isBrandOwner(brandId);
+    }
+
+    // Queue Items collection
+    match /queueItems/{itemId} {
+      // Members of the brand can read queue items
+      allow read: if isBrandMember(resource.data.brandId);
+
+      // Only admins/owners can create queue items
+      allow create: if isAuthenticated() &&
+        isBrandAdmin(request.resource.data.brandId);
+
+      // Only admins/owners can update (approve/reject)
+      allow update: if isBrandAdmin(resource.data.brandId);
+
+      // Only owners can delete
+      allow delete: if isBrandOwner(resource.data.brandId);
+    }
+
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

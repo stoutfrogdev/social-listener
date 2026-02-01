@@ -1,0 +1,48 @@
+# Development Docker Compose for Social Listener Platform
+# Includes Next.js app and Firebase Emulator
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../src:/app/src
+      - ../public:/app/public
+      - ../package.json:/app/package.json
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_FIREBASE_USE_EMULATOR=true
+      - FIRESTORE_EMULATOR_HOST=firebase:8080
+      - FIREBASE_AUTH_EMULATOR_HOST=firebase:9099
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=dev-secret-change-in-production
+    env_file:
+      - ../config/.env.development
+    depends_on:
+      - firebase
+
+  firebase:
+    image: ghcr.io/nicholasjackson/firebase-emulator:latest
+    ports:
+      - "8080:8080"   # Firestore
+      - "9099:9099"   # Auth
+      - "4000:4000"   # Emulator UI
+    volumes:
+      - ../firebase:/firebase
+      - firebase-data:/data
+    environment:
+      - FIREBASE_PROJECT_ID=social-listener-dev
+    command: >
+      firebase emulators:start
+      --project social-listener-dev
+      --only auth,firestore
+      --import=/data
+      --export-on-exit=/data
+
+volumes:
+  firebase-data:

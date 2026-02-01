@@ -247,8 +247,31 @@ The `instructions/` directory contains permission and policy files:
 
 ```
 instructions/
-└── approved-permissions.md   # Pre-approved permissions for Claude sessions
+├── approved-permissions.md   # Pre-approved permissions for Claude sessions
+└── plans/                    # Project plans and implementation proposals
 ```
+
+### Plans Directory
+
+The `instructions/plans/` directory contains project-specific implementation plans:
+
+**Naming Convention:** `YYYY-MM-DD-<description>.md`
+
+Examples:
+- `2026-01-31-social-listener-initial-scaffolding.md`
+- `2026-02-15-social-connections-oauth.md`
+- `2026-03-01-ai-content-generation.md`
+
+**Plan File Structure:**
+- **Created**: Date the plan was created
+- **Status**: `Pending Approval`, `Approved`, `In Progress`, `Completed`, `Superseded`
+- **Summary**: Brief one-line description of what the plan covers
+
+**Usage:**
+- All new project plans should be created in this directory
+- Review existing plans before starting related work to understand prior decisions
+- Update plan status as implementation progresses
+- When a plan is superseded by a newer approach, mark it as `Superseded` and reference the new plan
 
 ### Context Directory
 
