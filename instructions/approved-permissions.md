@@ -83,6 +83,30 @@ The following actions ALWAYS require explicit human permission and must NEVER be
 - `npm run type-check` - Run type checking
 - `npm run build` - Build project
 - `npm run check-all` - Run all checks
+- `npm run dev` - Start development server
+
+### Platform Scripts (platform/scripts/)
+
+- `./scripts/dev.sh` - Start local dev environment with Docker
+- `./scripts/build.sh` - Build Docker images
+- `./scripts/test.sh` - Run tests
+- `./scripts/emulator.sh` - Start Firebase emulator standalone
+
+### Docker Operations
+
+- `docker compose up` - Start containers
+- `docker compose down` - Stop containers
+- `docker compose build` - Build images
+- `docker compose logs` - View container logs
+- `docker build` - Build Docker image
+- `docker ps` - List running containers
+
+### Firebase CLI (Read/Dev Operations)
+
+- `firebase emulators:start` - Start local emulators
+- `firebase emulators:export` - Export emulator data
+- `firebase projects:list` - List Firebase projects
+- `firebase use` - Switch Firebase project alias
 
 ### Directory & Search
 
