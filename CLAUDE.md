@@ -15,6 +15,25 @@ This file contains:
 
 If your intended action is in the approved list, proceed without asking. If it's in the "Never Approve" list, you MUST ask for permission. If it's in neither, ask for permission and offer to add it to the approved list if the user agrees.
 
+### Mandatory Permission Tracking (CRITICAL)
+
+**When the user grants ANY new permission, you MUST immediately:**
+
+1. Update `instructions/approved-permissions.md` with the new permission
+2. Add it to the "Session-Added Permissions" section with:
+   - The permission description
+   - Today's date
+   - Context for why it was granted
+3. Commit and push the change before continuing with other work
+
+**This is NOT optional.** Every granted permission must be recorded immediately so it persists across sessions. Failure to do this means the user will be asked again in future sessions.
+
+**Examples of permissions that must be tracked:**
+- File write permissions (e.g., "write to platform/ directory")
+- New command permissions (e.g., "run docker compose")
+- Edit permissions for specific files (e.g., "edit CLAUDE.md")
+- Any action the user approves that wasn't previously in the approved list
+
 ---
 
 ## Git Workflow (IMPORTANT - READ FIRST)
