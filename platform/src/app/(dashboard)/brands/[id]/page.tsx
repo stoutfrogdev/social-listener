@@ -15,13 +15,10 @@ export default async function BrandDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  const canAccess = await userCanAccessBrand(session.user.id, params.id)
-  if (!canAccess) {
-    notFound()
-  }
-
+  // Fetch once, pass to access check to avoid double read
   const brand = await getBrandById(params.id)
-  if (!brand) {
+  const canAccess = await userCanAccessBrand(session.user.id, params.id, brand)
+  if (!canAccess || !brand) {
     notFound()
   }
 

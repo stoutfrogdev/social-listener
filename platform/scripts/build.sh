@@ -14,7 +14,20 @@ echo "Platform directory: $PLATFORM_DIR"
 
 cd "$PLATFORM_DIR"
 
-# Build the Docker image
-docker build -t social-listener-platform:$ENV -f docker/Dockerfile .
+# Use environment-specific env file if it exists
+ENV_FILE="config/.env.${ENV}"
+BUILD_ARGS=""
 
-echo "Build complete: social-listener-platform:$ENV"
+if [ -f "$ENV_FILE" ]; then
+  echo "Using env file: $ENV_FILE"
+  BUILD_ARGS="--build-arg ENV_FILE=$ENV_FILE"
+fi
+
+# Build the Docker image with environment tag
+docker build \
+  $BUILD_ARGS \
+  --build-arg NODE_ENV="${ENV}" \
+  -t "social-listener-platform:${ENV}" \
+  -f docker/Dockerfile .
+
+echo "Build complete: social-listener-platform:${ENV}"

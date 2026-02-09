@@ -1,6 +1,7 @@
 import type { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { verifyPassword, getUserById, createUser, emailExists } from '@/models/user'
+import { verifyPassword, createUser, emailExists } from '@/models/user'
+import { registerSchema, loginSchema } from '@/lib/validations'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -21,20 +22,26 @@ export const authOptions: NextAuthOptions = {
         const isRegistration = credentials.isRegistration === 'true'
 
         if (isRegistration) {
-          // Registration flow
-          if (!credentials.name) {
-            throw new Error('Name is required for registration')
+          // Validate registration input with Zod
+          const result = registerSchema.safeParse({
+            email: credentials.email,
+            name: credentials.name,
+            password: credentials.password,
+          })
+
+          if (!result.success) {
+            throw new Error(result.error.issues[0].message)
           }
 
-          const exists = await emailExists(credentials.email)
+          const exists = await emailExists(result.data.email)
           if (exists) {
             throw new Error('An account with this email already exists')
           }
 
           const user = await createUser({
-            email: credentials.email,
-            password: credentials.password,
-            name: credentials.name,
+            email: result.data.email,
+            password: result.data.password,
+            name: result.data.name,
           })
 
           return {
@@ -44,8 +51,17 @@ export const authOptions: NextAuthOptions = {
             image: user.image,
           }
         } else {
-          // Login flow
-          const user = await verifyPassword(credentials.email, credentials.password)
+          // Validate login input with Zod
+          const result = loginSchema.safeParse({
+            email: credentials.email,
+            password: credentials.password,
+          })
+
+          if (!result.success) {
+            throw new Error(result.error.issues[0].message)
+          }
+
+          const user = await verifyPassword(result.data.email, result.data.password)
 
           if (!user) {
             throw new Error('Invalid email or password')

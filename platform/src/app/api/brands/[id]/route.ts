@@ -8,7 +8,8 @@ import {
   userCanAccessBrand,
   userCanEditBrand,
 } from '@/models/brand'
-import type { ApiResponse, Brand, UpdateBrandInput } from '@/types'
+import { updateBrandSchema } from '@/lib/validations'
+import type { ApiResponse, Brand } from '@/types'
 
 interface RouteParams {
   params: { id: string }
@@ -31,16 +32,10 @@ export async function GET(
   const { id } = params
 
   try {
-    const canAccess = await userCanAccessBrand(session.user.id, id)
-    if (!canAccess) {
-      return NextResponse.json(
-        { success: false, error: 'Brand not found' },
-        { status: 404 }
-      )
-    }
-
+    // Fetch once, pass to access check to avoid double read
     const brand = await getBrandById(id)
-    if (!brand) {
+    const canAccess = await userCanAccessBrand(session.user.id, id, brand)
+    if (!canAccess || !brand) {
       return NextResponse.json(
         { success: false, error: 'Brand not found' },
         { status: 404 }
@@ -74,7 +69,9 @@ export async function PUT(
   const { id } = params
 
   try {
-    const canEdit = await userCanEditBrand(session.user.id, id)
+    // Fetch once, pass to edit check to avoid double read
+    const existingBrand = await getBrandById(id)
+    const canEdit = await userCanEditBrand(session.user.id, id, existingBrand)
     if (!canEdit) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
@@ -82,12 +79,20 @@ export async function PUT(
       )
     }
 
-    const body: UpdateBrandInput = await request.json()
+    const body = await request.json()
+    const result = updateBrandSchema.safeParse(body)
+
+    if (!result.success) {
+      return NextResponse.json(
+        { success: false, error: result.error.issues[0].message },
+        { status: 400 }
+      )
+    }
 
     const brand = await updateBrand(id, {
-      name: body.name?.trim(),
-      description: body.description?.trim(),
-      settings: body.settings,
+      name: result.data.name?.trim(),
+      description: result.data.description?.trim(),
+      settings: result.data.settings,
     })
 
     if (!brand) {
@@ -124,7 +129,6 @@ export async function DELETE(
   const { id } = params
 
   try {
-    // Only owner can delete
     const brand = await getBrandById(id)
     if (!brand) {
       return NextResponse.json(

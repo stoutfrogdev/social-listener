@@ -3,6 +3,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export default function NewBrandPage() {
   const router = useRouter()
@@ -56,25 +61,19 @@ export default function NewBrandPage() {
   }
 
   return (
-    <div style={{ maxWidth: '600px' }}>
-      <h1 style={{ marginBottom: '2rem' }}>Create Brand</h1>
+    <div className="max-w-2xl">
+      <h1 className="text-3xl font-bold mb-8">Create Brand</h1>
 
       {errorMessage && (
-        <div className="error" style={{
-          padding: '1rem',
-          marginBottom: '1rem',
-          backgroundColor: '#fff5f5',
-          border: '1px solid #dc3545',
-          borderRadius: '4px',
-        }}>
-          {errorMessage}
-        </div>
+        <Alert variant="destructive" className="mb-6">
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="name">Brand Name *</label>
-          <input
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="name">Brand Name *</Label>
+          <Input
             id="name"
             type="text"
             value={name}
@@ -85,9 +84,9 @@ export default function NewBrandPage() {
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="description">Description</label>
-          <textarea
+        <div className="space-y-2">
+          <Label htmlFor="description">Description</Label>
+          <Textarea
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -97,9 +96,9 @@ export default function NewBrandPage() {
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="tone">Brand Tone/Voice</label>
-          <textarea
+        <div className="space-y-2">
+          <Label htmlFor="tone">Brand Tone/Voice</Label>
+          <Textarea
             id="tone"
             value={tone}
             onChange={(e) => setTone(e.target.value)}
@@ -109,9 +108,9 @@ export default function NewBrandPage() {
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="guidelines">Content Guidelines</label>
-          <textarea
+        <div className="space-y-2">
+          <Label htmlFor="guidelines">Content Guidelines</Label>
+          <Textarea
             id="guidelines"
             value={guidelines}
             onChange={(e) => setGuidelines(e.target.value)}
@@ -121,17 +120,13 @@ export default function NewBrandPage() {
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isLoading}
-          >
+        <div className="flex gap-3 pt-4">
+          <Button type="submit" disabled={isLoading}>
             {isLoading ? 'Creating...' : 'Create Brand'}
-          </button>
-          <Link href="/dashboard/brands" className="btn btn-secondary">
-            Cancel
-          </Link>
+          </Button>
+          <Button variant="secondary" asChild>
+            <Link href="/dashboard/brands">Cancel</Link>
+          </Button>
         </div>
       </form>
     </div>

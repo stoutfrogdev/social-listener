@@ -2,6 +2,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { getBrandsByUserId } from '@/models/brand'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default async function BrandsPage() {
   const session = await getServerSession(authOptions)
@@ -11,40 +13,44 @@ export default async function BrandsPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Brands</h1>
-        <Link href="/dashboard/brands/new" className="btn btn-primary">
-          Create Brand
-        </Link>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Brands</h1>
+        <Button asChild>
+          <Link href="/dashboard/brands/new">Create Brand</Link>
+        </Button>
       </div>
 
       {brands.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
-          <p style={{ color: '#666', marginBottom: '1rem' }}>
-            You haven&apos;t created any brands yet.
-          </p>
-          <Link href="/dashboard/brands/new" className="btn btn-primary">
-            Create Your First Brand
-          </Link>
-        </div>
+        <Card className="text-center py-12">
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              You haven&apos;t created any brands yet.
+            </p>
+            <Button asChild>
+              <Link href="/dashboard/brands/new">Create Your First Brand</Link>
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: '1rem',
-        }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {brands.map((brand) => (
-            <Link key={brand.id} href={`/dashboard/brands/${brand.id}`} className="card">
-              <h3>{brand.name}</h3>
-              {brand.description && (
-                <p style={{ color: '#666', marginTop: '0.5rem' }}>
-                  {brand.description}
-                </p>
-              )}
-              <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', color: '#999', fontSize: '0.875rem' }}>
-                <span>{brand.members.length} member{brand.members.length !== 1 ? 's' : ''}</span>
-                <span>{brand.socialConnections.length} connection{brand.socialConnections.length !== 1 ? 's' : ''}</span>
-              </div>
+            <Link key={brand.id} href={`/dashboard/brands/${brand.id}`}>
+              <Card className="hover:border-primary transition-colors cursor-pointer h-full">
+                <CardHeader>
+                  <CardTitle className="text-lg">{brand.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {brand.description && (
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {brand.description}
+                    </p>
+                  )}
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>{brand.members.length} member{brand.members.length !== 1 ? 's' : ''}</span>
+                    <span>{brand.socialConnections.length} connection{brand.socialConnections.length !== 1 ? 's' : ''}</span>
+                  </div>
+                </CardContent>
+              </Card>
             </Link>
           ))}
         </div>

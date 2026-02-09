@@ -2,6 +2,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { getBrandsByUserId } from '@/models/brand'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions)
@@ -11,61 +13,56 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <h1 style={{ marginBottom: '2rem' }}>Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '1rem',
-        marginBottom: '2rem',
-      }}>
-        <div className="card">
-          <h3 style={{ color: '#666', marginBottom: '0.5rem' }}>Brands</h3>
-          <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{brands.length}</p>
-        </div>
-        <div className="card">
-          <h3 style={{ color: '#666', marginBottom: '0.5rem' }}>Pending Approvals</h3>
-          <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>0</p>
-        </div>
-        <div className="card">
-          <h3 style={{ color: '#666', marginBottom: '0.5rem' }}>Published Today</h3>
-          <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>0</p>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Brands</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold">{brands.length}</p>
+          </CardContent>
+        </Card>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h2>Your Brands</h2>
-        <Link href="/dashboard/brands/new" className="btn btn-primary">
-          Create Brand
-        </Link>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">Your Brands</h2>
+        <Button asChild>
+          <Link href="/dashboard/brands/new">Create Brand</Link>
+        </Button>
       </div>
 
       {brands.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
-          <p style={{ color: '#666', marginBottom: '1rem' }}>
-            You haven&apos;t created any brands yet.
-          </p>
-          <Link href="/dashboard/brands/new" className="btn btn-primary">
-            Create Your First Brand
-          </Link>
-        </div>
+        <Card className="text-center py-12">
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              You haven&apos;t created any brands yet.
+            </p>
+            <Button asChild>
+              <Link href="/dashboard/brands/new">Create Your First Brand</Link>
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: '1rem',
-        }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {brands.map((brand) => (
-            <Link key={brand.id} href={`/dashboard/brands/${brand.id}`} className="card">
-              <h3>{brand.name}</h3>
-              {brand.description && (
-                <p style={{ color: '#666', marginTop: '0.5rem' }}>
-                  {brand.description}
-                </p>
-              )}
-              <p style={{ color: '#999', fontSize: '0.875rem', marginTop: '1rem' }}>
-                {brand.members.length} member{brand.members.length !== 1 ? 's' : ''}
-              </p>
+            <Link key={brand.id} href={`/dashboard/brands/${brand.id}`}>
+              <Card className="hover:border-primary transition-colors cursor-pointer h-full">
+                <CardHeader>
+                  <CardTitle className="text-lg">{brand.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {brand.description && (
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {brand.description}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {brand.members.length} member{brand.members.length !== 1 ? 's' : ''}
+                  </p>
+                </CardContent>
+              </Card>
             </Link>
           ))}
         </div>

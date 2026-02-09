@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Link from 'next/link'
 import { SignOutButton } from '@/components/ui/sign-out-button'
+import { MobileNav } from '@/components/ui/mobile-nav'
 
 export default async function DashboardLayout({
   children,
@@ -16,30 +17,29 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <header style={{
-        borderBottom: '1px solid #eaeaea',
-        padding: '1rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <Link href="/dashboard" style={{ fontWeight: 'bold', fontSize: '1.25rem' }}>
+    <div className="min-h-screen flex flex-col">
+      <header className="border-b px-4 py-3 flex justify-between items-center">
+        <div className="flex items-center gap-6">
+          <Link href="/dashboard" className="font-bold text-lg">
             Social Listener
           </Link>
-          <nav style={{ display: 'flex', gap: '1rem' }}>
-            <Link href="/dashboard">Dashboard</Link>
-            <Link href="/dashboard/brands">Brands</Link>
+          <nav className="hidden md:flex gap-4">
+            <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Dashboard
+            </Link>
+            <Link href="/dashboard/brands" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Brands
+            </Link>
           </nav>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ color: '#666' }}>{session.user.name}</span>
+        <div className="hidden md:flex items-center gap-4">
+          <span className="text-sm text-muted-foreground">{session.user.name}</span>
           <SignOutButton />
         </div>
+        <MobileNav userName={session.user.name} />
       </header>
-      <main style={{ flex: 1, padding: '2rem' }}>
-        <div className="container">
+      <main className="flex-1 p-4 md:p-8">
+        <div className="container mx-auto max-w-7xl">
           {children}
         </div>
       </main>

@@ -37,6 +37,8 @@ export interface Brand {
 
 export interface BrandMember {
   userId: string
+  userName?: string
+  userEmail?: string
   role: 'owner' | 'admin' | 'member'
   addedAt: Date
 }

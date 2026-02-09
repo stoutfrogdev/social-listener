@@ -4,6 +4,12 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Brand } from '@/types'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 interface BrandDetailProps {
   brand: Brand
@@ -97,78 +103,60 @@ export function BrandDetail({ brand, canEdit, isOwner }: BrandDetailProps) {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <Link href="/dashboard/brands" style={{ color: '#666', fontSize: '0.875rem' }}>
-            ← Back to Brands
+          <Link href="/dashboard/brands" className="text-sm text-muted-foreground hover:text-foreground">
+            &larr; Back to Brands
           </Link>
-          <h1 style={{ marginTop: '0.5rem' }}>{brand.name}</h1>
+          <h1 className="text-3xl font-bold mt-1">{brand.name}</h1>
         </div>
         {canEdit && !isEditing && (
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button
-              onClick={() => setIsEditing(true)}
-              className="btn btn-secondary"
-            >
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setIsEditing(true)}>
               Edit
-            </button>
+            </Button>
             {isOwner && (
-              <button
-                onClick={() => setIsDeleting(true)}
-                className="btn btn-danger"
-              >
+              <Button variant="destructive" onClick={() => setIsDeleting(true)}>
                 Delete
-              </button>
+              </Button>
             )}
           </div>
         )}
       </div>
 
       {errorMessage && (
-        <div className="error" style={{
-          padding: '1rem',
-          marginBottom: '1rem',
-          backgroundColor: '#fff5f5',
-          border: '1px solid #dc3545',
-          borderRadius: '4px',
-        }}>
-          {errorMessage}
-        </div>
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
       )}
 
       {isDeleting && (
-        <div className="card" style={{ marginBottom: '1rem', backgroundColor: '#fff5f5', borderColor: '#dc3545' }}>
-          <p style={{ marginBottom: '1rem' }}>
-            <strong>Are you sure you want to delete this brand?</strong>
-          </p>
-          <p style={{ color: '#666', marginBottom: '1rem' }}>
-            This will permanently delete all brand settings and cannot be undone.
-          </p>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button
-              onClick={handleDelete}
-              className="btn btn-danger"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Deleting...' : 'Yes, Delete Brand'}
-            </button>
-            <button
-              onClick={() => setIsDeleting(false)}
-              className="btn btn-secondary"
-              disabled={isLoading}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+        <Card className="mb-4 border-destructive bg-destructive/5">
+          <CardContent className="pt-6">
+            <p className="font-semibold mb-2">
+              Are you sure you want to delete this brand?
+            </p>
+            <p className="text-sm text-muted-foreground mb-4">
+              This will permanently delete all brand settings and cannot be undone.
+            </p>
+            <div className="flex gap-2">
+              <Button variant="destructive" onClick={handleDelete} disabled={isLoading}>
+                {isLoading ? 'Deleting...' : 'Yes, Delete Brand'}
+              </Button>
+              <Button variant="secondary" onClick={() => setIsDeleting(false)} disabled={isLoading}>
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      <div className="card">
+      <Card>
         {isEditing ? (
-          <>
-            <div className="form-group">
-              <label htmlFor="name">Brand Name</label>
-              <input
+          <CardContent className="pt-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Brand Name</Label>
+              <Input
                 id="name"
                 type="text"
                 value={name}
@@ -177,9 +165,9 @@ export function BrandDetail({ brand, canEdit, isOwner }: BrandDetailProps) {
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="description">Description</label>
-              <textarea
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -188,9 +176,9 @@ export function BrandDetail({ brand, canEdit, isOwner }: BrandDetailProps) {
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="tone">Brand Tone/Voice</label>
-              <textarea
+            <div className="space-y-2">
+              <Label htmlFor="tone">Brand Tone/Voice</Label>
+              <Textarea
                 id="tone"
                 value={tone}
                 onChange={(e) => setTone(e.target.value)}
@@ -199,9 +187,9 @@ export function BrandDetail({ brand, canEdit, isOwner }: BrandDetailProps) {
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="guidelines">Content Guidelines</label>
-              <textarea
+            <div className="space-y-2">
+              <Label htmlFor="guidelines">Content Guidelines</Label>
+              <Textarea
                 id="guidelines"
                 value={guidelines}
                 onChange={(e) => setGuidelines(e.target.value)}
@@ -210,79 +198,54 @@ export function BrandDetail({ brand, canEdit, isOwner }: BrandDetailProps) {
               />
             </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-              <button
-                onClick={handleSave}
-                className="btn btn-primary"
-                disabled={isLoading}
-              >
+            <div className="flex gap-2 pt-2">
+              <Button onClick={handleSave} disabled={isLoading}>
                 {isLoading ? 'Saving...' : 'Save Changes'}
-              </button>
-              <button
-                onClick={handleCancel}
-                className="btn btn-secondary"
-                disabled={isLoading}
-              >
+              </Button>
+              <Button variant="secondary" onClick={handleCancel} disabled={isLoading}>
                 Cancel
-              </button>
+              </Button>
             </div>
-          </>
+          </CardContent>
         ) : (
-          <>
-            <h3 style={{ marginBottom: '1rem' }}>Brand Details</h3>
+          <CardContent className="pt-6">
+            <h3 className="text-lg font-semibold mb-4">Brand Details</h3>
 
             {brand.description && (
-              <div style={{ marginBottom: '1.5rem' }}>
-                <strong>Description</strong>
-                <p style={{ color: '#666', marginTop: '0.25rem' }}>{brand.description}</p>
+              <div className="mb-6">
+                <p className="text-sm font-medium mb-1">Description</p>
+                <p className="text-sm text-muted-foreground">{brand.description}</p>
               </div>
             )}
 
-            <div style={{ marginBottom: '1.5rem' }}>
-              <strong>Tone/Voice</strong>
-              <p style={{ color: '#666', marginTop: '0.25rem' }}>
+            <div className="mb-6">
+              <p className="text-sm font-medium mb-1">Tone/Voice</p>
+              <p className="text-sm text-muted-foreground">
                 {brand.settings.tone || 'Not set'}
               </p>
             </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
-              <strong>Content Guidelines</strong>
-              <p style={{ color: '#666', marginTop: '0.25rem', whiteSpace: 'pre-wrap' }}>
+            <div className="mb-6">
+              <p className="text-sm font-medium mb-1">Content Guidelines</p>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                 {brand.settings.guidelines || 'Not set'}
               </p>
             </div>
 
             <div>
-              <strong>Members</strong>
-              <ul style={{ marginTop: '0.5rem', color: '#666' }}>
+              <p className="text-sm font-medium mb-2">Members</p>
+              <ul className="space-y-1">
                 {brand.members.map((member) => (
-                  <li key={member.userId}>
-                    {member.userId} ({member.role})
+                  <li key={member.userId} className="text-sm text-muted-foreground flex items-center gap-2">
+                    <span>{member.userName || member.userEmail || member.userId}</span>
+                    <span className="text-xs bg-secondary px-2 py-0.5 rounded-full">{member.role}</span>
                   </li>
                 ))}
               </ul>
             </div>
-          </>
+          </CardContent>
         )}
-      </div>
-
-      <div className="card" style={{ marginTop: '1rem' }}>
-        <h3 style={{ marginBottom: '1rem' }}>Social Connections</h3>
-        {brand.socialConnections.length === 0 ? (
-          <p style={{ color: '#666' }}>
-            No social accounts connected yet. This feature will be available in a future update.
-          </p>
-        ) : (
-          <ul>
-            {brand.socialConnections.map((connection) => (
-              <li key={connection.accountId}>
-                {connection.platform}: {connection.accountName}
-                {connection.enabled ? ' (Active)' : ' (Disabled)'}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      </Card>
     </div>
   )
 }

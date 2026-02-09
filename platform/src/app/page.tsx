@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 export default async function Home() {
   const session = await getServerSession(authOptions)
@@ -11,33 +12,20 @@ export default async function Home() {
   }
 
   return (
-    <main style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '2rem'
-    }}>
-      <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+    <main className="flex min-h-screen flex-col items-center justify-center p-8">
+      <h1 className="text-5xl font-bold mb-4">
         Social Listener
       </h1>
-      <p style={{
-        fontSize: '1.25rem',
-        color: '#666',
-        marginBottom: '2rem',
-        textAlign: 'center',
-        maxWidth: '600px'
-      }}>
+      <p className="text-lg text-muted-foreground mb-8 text-center max-w-xl">
         Monitor social media, generate AI-powered responses, and manage your brand presence with human-in-the-loop approval.
       </p>
-      <div style={{ display: 'flex', gap: '1rem' }}>
-        <Link href="/login" className="btn btn-primary">
-          Sign In
-        </Link>
-        <Link href="/register" className="btn btn-secondary">
-          Create Account
-        </Link>
+      <div className="flex gap-4">
+        <Button asChild>
+          <Link href="/login">Sign In</Link>
+        </Button>
+        <Button variant="secondary" asChild>
+          <Link href="/register">Create Account</Link>
+        </Button>
       </div>
     </main>
   )

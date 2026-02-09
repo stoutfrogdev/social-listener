@@ -1,15 +1,20 @@
 import { collections, FieldValue } from '@/lib/firebase'
 import type { Brand, CreateBrandInput, UpdateBrandInput, BrandMember } from '@/types'
 
-export async function createBrand(ownerId: string, input: CreateBrandInput): Promise<Brand> {
-  const now = new Date()
-
+export async function createBrand(
+  ownerId: string,
+  ownerName: string,
+  ownerEmail: string,
+  input: CreateBrandInput
+): Promise<Brand> {
   const brandData = {
     name: input.name,
     description: input.description || null,
     ownerId,
     members: [{
       userId: ownerId,
+      userName: ownerName,
+      userEmail: ownerEmail,
       role: 'owner',
       addedAt: FieldValue.serverTimestamp(),
     }],
@@ -25,24 +30,9 @@ export async function createBrand(ownerId: string, input: CreateBrandInput): Pro
 
   const docRef = await collections.brands.add(brandData)
 
-  return {
-    id: docRef.id,
-    name: brandData.name,
-    description: input.description,
-    ownerId,
-    members: [{
-      userId: ownerId,
-      role: 'owner',
-      addedAt: now,
-    }],
-    settings: {
-      tone: brandData.settings.tone,
-      guidelines: brandData.settings.guidelines,
-    },
-    socialConnections: [],
-    createdAt: now,
-    updatedAt: now,
-  }
+  // Re-read the document to get actual server timestamps
+  const doc = await docRef.get()
+  return docToBrand(doc)
 }
 
 export async function getBrandById(id: string): Promise<Brand | null> {
@@ -56,17 +46,17 @@ export async function getBrandById(id: string): Promise<Brand | null> {
 }
 
 export async function getBrandsByUserId(userId: string): Promise<Brand[]> {
-  // Get brands where user is owner
-  const ownerSnapshot = await collections.brands
-    .where('ownerId', '==', userId)
-    .orderBy('createdAt', 'desc')
-    .get()
-
-  // Get brands where user is a member
-  const memberSnapshot = await collections.brands
-    .where('members', 'array-contains', { userId })
-    .orderBy('createdAt', 'desc')
-    .get()
+  // Run both queries in parallel instead of sequentially
+  const [ownerSnapshot, memberSnapshot] = await Promise.all([
+    collections.brands
+      .where('ownerId', '==', userId)
+      .orderBy('createdAt', 'desc')
+      .get(),
+    collections.brands
+      .where('members', 'array-contains', { userId })
+      .orderBy('createdAt', 'desc')
+      .get(),
+  ])
 
   const brandMap = new Map<string, Brand>()
 
@@ -128,8 +118,16 @@ export async function deleteBrand(id: string): Promise<boolean> {
   return true
 }
 
-export async function userCanAccessBrand(userId: string, brandId: string): Promise<boolean> {
-  const brand = await getBrandById(brandId)
+/**
+ * Check if a user can access (view) a brand.
+ * Accepts an optional pre-fetched brand to avoid redundant Firestore reads.
+ */
+export async function userCanAccessBrand(
+  userId: string,
+  brandId: string,
+  existingBrand?: Brand | null
+): Promise<boolean> {
+  const brand = existingBrand ?? await getBrandById(brandId)
 
   if (!brand) {
     return false
@@ -142,8 +140,16 @@ export async function userCanAccessBrand(userId: string, brandId: string): Promi
   return brand.members.some(member => member.userId === userId)
 }
 
-export async function userCanEditBrand(userId: string, brandId: string): Promise<boolean> {
-  const brand = await getBrandById(brandId)
+/**
+ * Check if a user can edit a brand.
+ * Accepts an optional pre-fetched brand to avoid redundant Firestore reads.
+ */
+export async function userCanEditBrand(
+  userId: string,
+  brandId: string,
+  existingBrand?: Brand | null
+): Promise<boolean> {
+  const brand = existingBrand ?? await getBrandById(brandId)
 
   if (!brand) {
     return false
@@ -160,6 +166,8 @@ export async function userCanEditBrand(userId: string, brandId: string): Promise
 export async function addBrandMember(
   brandId: string,
   userId: string,
+  userName: string,
+  userEmail: string,
   role: BrandMember['role']
 ): Promise<Brand | null> {
   const docRef = collections.brands.doc(brandId)
@@ -172,8 +180,10 @@ export async function addBrandMember(
   await docRef.update({
     members: FieldValue.arrayUnion({
       userId,
+      userName,
+      userEmail,
       role,
-      addedAt: new Date(),
+      addedAt: FieldValue.serverTimestamp(),
     }),
     updatedAt: FieldValue.serverTimestamp(),
   })
@@ -219,8 +229,10 @@ function docToBrand(doc: FirebaseFirestore.DocumentSnapshot): Brand {
     ownerId: data.ownerId,
     members: (data.members || []).map((m: Record<string, unknown>) => ({
       userId: m.userId as string,
+      userName: (m.userName as string) || undefined,
+      userEmail: (m.userEmail as string) || undefined,
       role: m.role as BrandMember['role'],
-      addedAt: m.addedAt?.toDate?.() || new Date(),
+      addedAt: (m.addedAt as { toDate?: () => Date })?.toDate?.() || new Date(),
     })),
     settings: {
       tone: data.settings?.tone || '',
@@ -232,7 +244,7 @@ function docToBrand(doc: FirebaseFirestore.DocumentSnapshot): Brand {
       accountId: sc.accountId as string,
       accountName: sc.accountName as string,
       enabled: sc.enabled as boolean,
-      connectedAt: sc.connectedAt?.toDate?.() || new Date(),
+      connectedAt: (sc.connectedAt as { toDate?: () => Date })?.toDate?.() || new Date(),
     })),
     createdAt: data.createdAt?.toDate?.() || new Date(),
     updatedAt: data.updatedAt?.toDate?.() || new Date(),

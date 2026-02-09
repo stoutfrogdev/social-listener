@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { createBrand, getBrandsByUserId } from '@/models/brand'
-import type { ApiResponse, Brand, CreateBrandInput } from '@/types'
+import { createBrandSchema } from '@/lib/validations'
+import type { ApiResponse, Brand } from '@/types'
 
 // GET /api/brands - List user's brands
 export async function GET(): Promise<NextResponse<ApiResponse<Brand[]>>> {
@@ -41,20 +42,26 @@ export async function POST(
   }
 
   try {
-    const body: CreateBrandInput = await request.json()
+    const body = await request.json()
+    const result = createBrandSchema.safeParse(body)
 
-    if (!body.name || body.name.trim() === '') {
+    if (!result.success) {
       return NextResponse.json(
-        { success: false, error: 'Brand name is required' },
+        { success: false, error: result.error.issues[0].message },
         { status: 400 }
       )
     }
 
-    const brand = await createBrand(session.user.id, {
-      name: body.name.trim(),
-      description: body.description?.trim(),
-      settings: body.settings,
-    })
+    const brand = await createBrand(
+      session.user.id,
+      session.user.name,
+      session.user.email,
+      {
+        name: result.data.name.trim(),
+        description: result.data.description?.trim(),
+        settings: result.data.settings,
+      }
+    )
 
     return NextResponse.json({ success: true, data: brand }, { status: 201 })
   } catch (error) {
