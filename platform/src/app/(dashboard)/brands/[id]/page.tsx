@@ -26,5 +26,5 @@ export default async function BrandDetailPage({ params }: PageProps) {
   const member = brand.members.find(m => m.userId === session.user.id)
   const canEdit = isOwner || member?.role === 'admin'
 
-  return <BrandDetail brand={brand} canEdit={canEdit} isOwner={isOwner} />
+  return <BrandDetail brand={brand} canEdit={canEdit} isOwner={isOwner} connections={brand.socialConnections} />
 }

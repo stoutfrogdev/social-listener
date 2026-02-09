@@ -49,12 +49,19 @@ export interface BrandSettings {
   [key: string]: unknown
 }
 
+export type SocialPlatform = 'twitter' | 'linkedin' | 'reddit'
+
 export interface SocialConnection {
-  platform: string
+  platform: SocialPlatform
   accountId: string
   accountName: string
+  displayName?: string
+  profileUrl?: string
+  avatarUrl?: string
   enabled: boolean
+  connectedBy?: string
   connectedAt: Date
+  tokenStatus?: 'active' | 'expired' | 'revoked'
 }
 
 export interface CreateBrandInput {

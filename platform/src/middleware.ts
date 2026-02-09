@@ -36,11 +36,14 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // Protect dashboard and brand API routes
+  // Protect dashboard, brand, and social API routes
   const isProtectedRoute = pathname.startsWith('/dashboard')
-  const isApiRoute = pathname.startsWith('/api/brands')
+  const isApiRoute = pathname.startsWith('/api/brands') || pathname.startsWith('/api/social')
 
-  if (isProtectedRoute || isApiRoute) {
+  // Social callback must be accessible (session checked in handler)
+  const isSocialCallback = pathname === '/api/social/callback'
+
+  if ((isProtectedRoute || isApiRoute) && !isSocialCallback) {
     const token = await getToken({ req: request })
     if (!token) {
       if (isApiRoute) {
@@ -62,6 +65,7 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/api/brands/:path*',
+    '/api/social/:path*',
     '/api/auth/:path*',
   ],
 }

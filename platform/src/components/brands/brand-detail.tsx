@@ -3,18 +3,20 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import type { Brand } from '@/types'
+import type { Brand, SocialConnection } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { SocialConnections } from './social-connections'
 
 interface BrandDetailProps {
   brand: Brand
   canEdit: boolean
   isOwner: boolean
+  connections?: SocialConnection[]
 }
 
 export function BrandDetail({ brand, canEdit, isOwner }: BrandDetailProps) {
@@ -246,6 +248,8 @@ export function BrandDetail({ brand, canEdit, isOwner }: BrandDetailProps) {
           </CardContent>
         )}
       </Card>
+
+      <SocialConnections brand={brand} canEdit={canEdit} />
     </div>
   )
 }

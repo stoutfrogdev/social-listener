@@ -15,7 +15,7 @@
   },
   "overrides": [
     {
-      "files": ["*.d.ts", "src/lib/auth.ts"],
+      "files": ["*.d.ts", "src/lib/auth.ts", "src/lib/social/types.ts"],
       "rules": {
         "no-unused-vars": "off"
       }

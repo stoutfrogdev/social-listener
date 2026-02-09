@@ -1,1 +1,2 @@
-import '@testing-library/jest-dom'
+// Test setup file
+// @testing-library/jest-dom matchers are loaded per-test when needed for React component tests

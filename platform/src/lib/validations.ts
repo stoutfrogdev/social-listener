@@ -57,3 +57,18 @@ export const loginSchema = z.object({
     .string()
     .min(1, 'Password is required'),
 })
+
+const socialPlatformSchema = z.enum(['twitter', 'linkedin', 'reddit'])
+
+export const connectSocialSchema = z.object({
+  brandId: z.string().min(1, 'Brand ID is required'),
+  platform: socialPlatformSchema,
+})
+
+export const disconnectSocialSchema = z.object({
+  connectionId: z.string().min(1, 'Connection ID is required'),
+})
+
+export const toggleConnectionSchema = z.object({
+  enabled: z.boolean(),
+})

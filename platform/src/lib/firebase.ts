@@ -24,6 +24,8 @@ export const collections = {
   users: db.collection('users'),
   brands: db.collection('brands'),
   queueItems: db.collection('queueItems'),
+  socialTokens: db.collection('socialTokens'),
+  oauthPending: db.collection('oauthPending'),
 }
 
 // Helper to convert Firestore timestamp to Date
